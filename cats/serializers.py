@@ -34,6 +34,18 @@ class CatSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'color', 'birth_year', 'achievements', 'owner',
                   'age')
         read_only_fields = ('owner',)
+        validators = [
+                UniqueTogetherValidator(
+                    queryset=Cat.objects.all(),
+                    fields=('name', 'owner')
+                )
+            ]
+
+    def validate(self, data):
+        if data['color'] == data['name']:
+            raise serializers.ValidationError(
+                'Имя не может совпадать с цветом!')
+        return data
 
     def validate_birth_year(self, value):
         year = dt.date.today().year
